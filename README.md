@@ -56,12 +56,12 @@ node -e "console.log(crypto.randomUUID())"
 ```
 
 **d. Fill in the settings.** In Supabase, **Project Settings → API** gives you
-the **Project URL** and the **anon public** key. Then either:
+the **Project URL** and the publishable (anon) key. These two go in
+[`config.js`](config.js) and can be committed safely — see below.
 
-- **Easiest:** edit [`config.js`](config.js), paste in all three values, and push.
-  Both phones pick it up automatically the next time they load the app.
-- **Or:** leave `config.js` empty and type the three values into the app's
-  ⚙ Settings screen on each phone.
+**The list code does not go in `config.js`.** Type it into the app's ⚙ Settings
+screen on each phone instead. It stays in that phone's local storage and never
+reaches the repository.
 
 Tap **Test connection** to confirm it worked before you rely on it.
 
@@ -98,14 +98,31 @@ of the two names on both phones rather than silently splitting into two lists.
 
 ## A note on privacy
 
-The list code is what protects your list. The `anon` key ships inside the app
-and is public by design, so the database policy in `schema.sql` additionally
-requires the list code on every request — the key alone gets an attacker
-nothing. Treat the code like a password: keep it long, and don't post it
-anywhere.
+The list code is what protects your list, so it is worth being precise about
+which values are secret and which are not:
 
-This also means there is no password reset. If you both forget the code, the
-list is unreachable; just pick a new one.
+| Value | Safe to commit? | Why |
+|---|---|---|
+| Project URL | Yes | Every request the app makes reveals it. |
+| Publishable / anon key | Yes | Built to ship in browsers. Alone it grants nothing. |
+| **List code** | **No** | The policy in `schema.sql` checks it, so it *is* the password. |
+
+Serving this app from GitHub Pages for free means the repository is public, so
+anything committed is readable by anyone who finds it. Keep the list code out
+of `config.js` and put it in each phone's Settings screen. Make it long and
+random — `node -e "console.log(crypto.randomUUID())"` — rather than a word you
+invent.
+
+**If a list code ever does get committed, changing the file is not enough.** Git
+keeps history, so the old code stays readable in the repo forever. Pick a new
+code, enter it on both phones, and clear out the old list in Supabase:
+
+```sql
+delete from public.items where list_id = 'the-old-code';
+```
+
+There is no password reset. If you both forget the code, the list is
+unreachable; just pick a new one.
 
 ## Running the tests
 
