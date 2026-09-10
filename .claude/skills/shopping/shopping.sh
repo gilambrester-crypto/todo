@@ -21,19 +21,22 @@ KC_ACCOUNT="${SHOPPING_KEYCHAIN_ACCOUNT:-${USER:-default}}"
 die() { printf '%s\n' "$*" >&2; exit 1; }
 
 list_code() {
-  # An explicit override wins; otherwise ask the keychain.
+  local code=""
   if [ -n "${SHOPPING_LIST_CODE:-}" ]; then
-    printf '%s' "$SHOPPING_LIST_CODE"
-    return
+    code=$SHOPPING_LIST_CODE
+  elif command -v security >/dev/null 2>&1; then
+    code=$(security find-generic-password -s "$KC_SERVICE" -a "$KC_ACCOUNT" -w 2>/dev/null) || code=""
   fi
-  command -v security >/dev/null 2>&1 || die "No 'security' command — this needs macOS, or set SHOPPING_LIST_CODE."
-  security find-generic-password -s "$KC_SERVICE" -a "$KC_ACCOUNT" -w 2>/dev/null || die \
-"No list code found in the keychain (service '$KC_SERVICE', account '$KC_ACCOUNT').
 
-Store it once with:
-  security add-generic-password -U -s $KC_SERVICE -a $KC_ACCOUNT -w
+  # Copy-paste routinely drags in a newline or a stray space. Left in place
+  # those land in the request URL and curl rejects the whole thing with a
+  # message that says nothing useful, so strip them here.
+  code=${code//$'\r'/}
+  code=${code//$'\n'/}
+  code="${code#"${code%%[![:space:]]*}"}"
+  code="${code%"${code##*[![:space:]]}"}"
 
-then paste the shared code at the prompt."
+  printf '%s' "$code"
 }
 
 # A v4 UUID. uuidgen exists on macOS, but falling back keeps this working
@@ -73,6 +76,31 @@ json_escape() {
 }
 
 CODE="$(list_code)"
+
+if [ -z "$CODE" ]; then
+  command -v security >/dev/null 2>&1 || die "No 'security' command — this needs macOS, or set SHOPPING_LIST_CODE."
+  die "No list code found in the keychain (service '$KC_SERVICE', account '$KC_ACCOUNT').
+
+Store it once with:
+  security add-generic-password -U -s $KC_SERVICE -a $KC_ACCOUNT -w
+
+then paste the shared code at the prompt."
+fi
+
+case "$CODE" in
+  *[!A-Za-z0-9._~-]*)
+    die "The list code in the keychain contains characters that cannot go in a URL.
+
+A space, tab or newline picked up while copying is the usual cause. Check what
+is actually stored with:
+
+  security find-generic-password -s $KC_SERVICE -a $KC_ACCOUNT -w | od -c
+
+then store it again, taking care not to include surrounding whitespace:
+
+  security add-generic-password -U -s $KC_SERVICE -a $KC_ACCOUNT -w"
+    ;;
+esac
 
 api() {
   local method=$1 path=$2 body=${3:-} prefer=${4:-return=minimal}
