@@ -124,6 +124,42 @@ delete from public.items where list_id = 'the-old-code';
 There is no password reset. If you both forget the code, the list is
 unreachable; just pick a new one.
 
+## Adding things from your Mac
+
+There is a Claude Code skill in `.claude/skills/shopping/` that reads and writes
+the same list, so you can say "put milk on the shopping list" in a terminal and
+have it appear on both phones.
+
+Set it up once per Mac by putting the shared code in the keychain:
+
+```bash
+security add-generic-password -U -s shopping-list -a "$USER" -w
+```
+
+Paste the code at the prompt. The skill reads it from there, so the code stays
+out of this repository.
+
+To use it from any directory rather than just this repo, copy the folder:
+
+```bash
+cp -R .claude/skills/shopping ~/.claude/skills/
+```
+
+The script works on its own too:
+
+```bash
+.claude/skills/shopping/shopping.sh list
+.claude/skills/shopping/shopping.sh add "Olive oil"
+```
+
+## Locking the database to one list
+
+`supabase/schema.sql` stops a stranger reading your list, but not from creating
+a list of their own in your project — the publishable key is public, and the
+policy only checks that the header matches the row. `supabase/lock-to-one-list.sql`
+closes that with a constraint pinning `list_id` to a single value. Run it once,
+substituting your real code. Recommended.
+
 ## Running the tests
 
 The merge logic is what stops the two phones drifting apart, so it's tested by
@@ -145,3 +181,5 @@ npm test
 | `sw.js` | Service worker — the offline part |
 | `config.js` | Your Supabase settings |
 | `supabase/schema.sql` | Database table and access policy |
+| `supabase/lock-to-one-list.sql` | Pins the database to your one list |
+| `.claude/skills/shopping/` | Claude Code skill for using the list from a Mac |
