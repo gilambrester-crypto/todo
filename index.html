@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16a34a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Shopping">
+<title>Shopping List</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <h1>Shopping list</h1>
+  <button id="settings-btn" class="icon-btn" aria-label="Settings" title="Settings">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.7 7.7 0 0 0-1.7-1L15 3H9l-.3 2.6a7.7 7.7 0 0 0-1.7 1l-2.4-1-2 3.4L4.6 11a7.7 7.7 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.7 7.7 0 0 0 1.7 1L9 21h6l.3-2.6a7.7 7.7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6Z"/></svg>
+  </button>
+</header>
+
+<div id="status" class="status" role="status" aria-live="polite"></div>
+
+<main>
+  <ul id="list" class="list" aria-label="Items to buy"></ul>
+
+  <div id="empty" class="empty" hidden>
+    <p>Nothing on the list.</p>
+    <p class="muted">Add something below &mdash; it works with no signal.</p>
+  </div>
+
+  <section id="done-section" class="done-section" hidden>
+    <div class="done-head">
+      <h2 id="done-title">In the basket</h2>
+      <button id="clear-done" class="link-btn" type="button">Clear</button>
+    </div>
+    <ul id="done-list" class="list done" aria-labelledby="done-title"></ul>
+  </section>
+</main>
+
+<form id="add-form" class="composer" autocomplete="off">
+  <input id="add-input" type="text" placeholder="Add an item&hellip;" enterkeyhint="done"
+         autocapitalize="sentences" autocorrect="on" aria-label="Add an item">
+  <button type="submit" class="add-btn" aria-label="Add">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</form>
+
+<dialog id="settings" class="sheet">
+  <form method="dialog" class="sheet-inner">
+    <h2>Settings</h2>
+
+    <div class="field">
+      <label for="cfg-url">Supabase project URL</label>
+      <input id="cfg-url" type="url" placeholder="https://xxxx.supabase.co" spellcheck="false" autocapitalize="off">
+    </div>
+    <div class="field">
+      <label for="cfg-key">Supabase anon key</label>
+      <input id="cfg-key" type="text" placeholder="eyJhbGciOi&hellip;" spellcheck="false" autocapitalize="off">
+    </div>
+    <div class="field">
+      <label for="cfg-list">Shared list code</label>
+      <input id="cfg-list" type="text" placeholder="a long random string" spellcheck="false" autocapitalize="off">
+      <p class="hint">Both phones must use the exact same code. Anyone who knows it can see the list, so keep it long and private.</p>
+    </div>
+
+    <p id="cfg-result" class="cfg-result" hidden></p>
+
+    <div class="sheet-actions">
+      <button id="cfg-test" type="button" class="btn ghost">Test connection</button>
+      <button id="cfg-save" type="button" class="btn primary">Save</button>
+    </div>
+    <button value="cancel" class="btn subtle full">Close</button>
+
+    <p class="hint centered">Leave these blank to use the app on this phone only.</p>
+  </form>
+</dialog>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

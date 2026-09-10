@@ -1,0 +1,12 @@
+{
+  "name": "shopping-list",
+  "version": "1.0.0",
+  "description": "A shared shopping list for two phones that works offline.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test/merge.test.mjs",
+    "start": "python3 -m http.server 8000"
+  },
+  "license": "MIT"
+}
