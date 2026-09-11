@@ -9,8 +9,21 @@ Reads and writes the household shopping list that both phones use. Changes made
 here show up on the phones within about 20 seconds, and merge correctly even if
 a phone was offline when you made them.
 
-`shopping.sh` lives next to this file. Run it from the skill directory, or by
-its full path.
+## Finding the script
+
+`shopping.sh` sits next to this file. **Always invoke it by full path**, never
+as `./shopping.sh` — this skill is usually active while the user has some
+unrelated project open, so the working directory is rarely the skill directory.
+
+Whichever of these exists is the one to use:
+
+```bash
+~/.claude/skills/shopping/shopping.sh     # installed for the whole machine
+.claude/skills/shopping/shopping.sh       # only when the todo repo is open
+```
+
+The commands below are written as `shopping.sh` for brevity. Substitute the
+full path when you actually run them.
 
 ## The one rule: act on ids, never on text
 
@@ -24,13 +37,13 @@ This is what lets you handle "get rid of the milk" when the item is actually
 ## Commands
 
 ```bash
-./shopping.sh list          # still to buy — JSON, includes ids
-./shopping.sh all           # also shows ticked-off and deleted items
-./shopping.sh add "Milk"    # add one item
-./shopping.sh done <id>     # tick off
-./shopping.sh undone <id>   # put back on the list
-./shopping.sh remove <id>   # delete
-./shopping.sh clear-done    # delete everything already ticked off
+shopping.sh list          # still to buy — JSON, includes ids
+shopping.sh all           # also shows ticked-off and deleted items
+shopping.sh add "Milk"    # add one item
+shopping.sh done <id>     # tick off
+shopping.sh undone <id>   # put back on the list
+shopping.sh remove <id>   # delete
+shopping.sh clear-done    # delete everything already ticked off
 ```
 
 ## How to use it
